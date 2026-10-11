@@ -117,7 +117,7 @@ public enum TipMaker {
         // Arrondi à 1e-6 pour éviter qu'un 90° exact ne gagne un pixel (cos ≈ 6e-17).
         let newW = max(1, Int((w * c + h * s - 1e-6).rounded(.up)))
         let newH = max(1, Int((w * s + h * c - 1e-6).rounded(.up)))
-        return draw(img, width: newW, height: newH) { ctx in
+        return CGRaster.draw(img, width: newW, height: newH) { ctx in
             ctx.translateBy(x: Double(newW) / 2, y: Double(newH) / 2)
             ctx.rotate(by: -rad)  // sens horaire à l'écran (origine en bas pour CG)
             ctx.translateBy(x: -w / 2, y: -h / 2)
@@ -126,43 +126,8 @@ public enum TipMaker {
     }
 
     private static func resized(_ img: RGBAImage, width: Int, height: Int) -> RGBAImage {
-        draw(img, width: width, height: height) { _ in
+        CGRaster.draw(img, width: width, height: height) { _ in
             CGRect(x: 0, y: 0, width: width, height: height)
         }
-    }
-
-    /// Dessine `img` dans un contexte transparent ; `setup` renvoie le rectangle de destination.
-    private static func draw(
-        _ img: RGBAImage, width: Int, height: Int, setup: (CGContext) -> CGRect
-    ) -> RGBAImage {
-        var pixels = [UInt8](repeating: 0, count: 4 * width * height)
-        pixels.withUnsafeMutableBytes { buf in
-            guard
-                let ctx = CGContext(
-                    data: buf.baseAddress, width: width, height: height,
-                    bitsPerComponent: 8, bytesPerRow: 4 * width,
-                    space: CGColorSpace(name: CGColorSpace.sRGB)!,
-                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
-            else { return }
-            ctx.interpolationQuality = .high
-            let rect = setup(ctx)
-            ctx.draw(ImageFile.cgImage(img), in: rect)
-        }
-        return unpremultiplied(pixels, width: width, height: height)
-    }
-
-    private static func unpremultiplied(_ premultiplied: [UInt8], width: Int, height: Int) -> RGBAImage {
-        var p = premultiplied
-        for i in 0..<(width * height) {
-            let a = Int(p[4 * i + 3])
-            if a == 0 {
-                p[4 * i] = 0; p[4 * i + 1] = 0; p[4 * i + 2] = 0
-            } else if a < 255 {
-                for k in 0..<3 {
-                    p[4 * i + k] = UInt8(min(255, (Double(p[4 * i + k]) * 255 / Double(a)).rounded()))
-                }
-            }
-        }
-        return RGBAImage(width: width, height: height, pixels: p)
     }
 }
