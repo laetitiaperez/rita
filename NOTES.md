@@ -36,3 +36,6 @@ Pour Laetitia seule. Krita 5.3.4.1.
 - `zlibDecompress` accepte tout en-tête zlib valide (CMF = 8, FCHECK correct) et vérifie l'Adler32 ; la référence Krita utilise un en-tête `0x78…` différent de `0x9C`.
 - La vignette du .kpp est aplatie sur blanc (alpha composité) avant l'encodage PNG ; les blocs `tEXt`/`zTXt`/`iTXt` préexistants sont retirés.
 - Opacity et Flow ne sont pas cochables dans Krita (la référence n'a pas `PressureOpacity`/`PressureFlow`) : leur état « Enable pen settings » est `OpacityUseCurve`/`FlowUseCurve` (true si activé, false sinon). Size, Rotation, Scatter, Spacing : `PressureX` = activé, `XUseCurve` = true.
+- Bundle : noms de fichiers non ASCII écrits en UTF-8 avec le bit 11 ; `unzip -Z1` les affiche déformés dans un terminal en locale C, mais `unzip -t` valide l'archive.
+- `meta.xml` : dates `dd/MM/yyyy` dans le fuseau courant (`BundleWriter.make(… timeZone:)` pour les tests) ; `manifest.xml` et `meta.xml` échappent `& < > "` dans le nom et l'auteur.
+- `BundleWriter.make` : version du générateur lue dans `CFBundleShortVersionString` du bundle principal, « 1.0 » à défaut ; entrées dans l'ordre mimetype, brushes, paintoppresets, preview.png, manifest, meta.
