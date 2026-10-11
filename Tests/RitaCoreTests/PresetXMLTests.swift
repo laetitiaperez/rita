@@ -116,4 +116,19 @@ private func parse(_ xml: String) throws -> Parsed {
         }
         #expect(PressureKind.opacity.label == "Opacité" && PressureKind.scatter.kritaKey == "Scatter")
     }
+
+    @Test func paramNamesExistInReference() throws {
+        let url = try #require(Bundle.module.url(forResource: "reference", withExtension: "kpp", subdirectory: "Resources"))
+        let refXML = try #require(try KPPFile.presetXML(in: Data(contentsOf: url)))
+        let ref = try parse(refXML)
+        let generated = try parse(PresetXML.make(.default, tipFileName: "x.png", tipSize: (10, 10)))
+        let prefixes = ["Pressure", "Size", "Opacity", "Flow", "Rotation", "Scatter", "Spacing"]
+        let exact: Set<String> = ["brush_definition", "paintop", "requiredBrushFile", "requiredBrushFilesList"]
+        var checked = 0
+        for name in generated.params.keys where exact.contains(name) || prefixes.contains(where: name.hasPrefix) {
+            #expect(ref.params[name] != nil, "absent de la référence : \(name)")
+            checked += 1
+        }
+        #expect(checked > 20)
+    }
 }
