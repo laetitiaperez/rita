@@ -35,3 +35,4 @@ Pour Laetitia seule. Krita 5.3.4.1.
 - Le XML commence directement par `<Preset …>` (pas de déclaration `<?xml?>`), comme le preset de référence.
 - `zlibDecompress` accepte tout en-tête zlib valide (CMF = 8, FCHECK correct) et vérifie l'Adler32 ; la référence Krita utilise un en-tête `0x78…` différent de `0x9C`.
 - La vignette du .kpp est aplatie sur blanc (alpha composité) avant l'encodage PNG ; les blocs `tEXt`/`zTXt`/`iTXt` préexistants sont retirés.
+- Écart connu : le preset de référence ne contient ni `PressureOpacity` ni `PressureFlow` (seulement `OpacitySensor`, `OpacityValue`… ) ; `PresetXML` les écrit quand même. À vérifier dans Krita (import réel) ; `paramNamesExistInReference` les exclut explicitement.
