@@ -75,7 +75,8 @@ docs/reference/    presets Krita de référence (lecture seule)
 
 ### 5.1 `RGBAImage`
 Pixels RGBA 8 bits non prémultipliés, chargement et écriture PNG
-via ImageIO. Repris et adapté de Baguette (WandCore).
+via ImageIO. Repris et adapté de Baguette (WandCore). À l'ouverture, l'image source est réduite à
+2048 px sur son plus grand côté (la pointe ne dépasse jamais 1024 px) pour garder l'aperçu fluide.
 
 ### 5.2 `TipMaker`
 Entrée : `RGBAImage` + `TipOptions` (seuil, contraste, inverser, recadrer, taille max, angle, mode).
@@ -92,9 +93,10 @@ sinon *Masque*.
 Erreur `TipError.empty` si aucun pixel ne reste après le seuil.
 
 ### 5.3 `PressureCurve`
-Points (x, y) dans [0,1], triés par x, avec au moins les points x = 0 et x = 1.
-`value(at:)` : interpolation par spline cubique monotone, comme le `KisCubicCurve` de Krita.
-Résultat borné à [0,1].
+Points (x, y) dans [0,1], triés par x, avec au moins les points x = 0 et x = 1. Deux points de même x :
+le dernier ajouté remplace l'autre.
+`value(at:)` : interpolation par spline cubique naturelle, comme le `KisCubicCurve` de Krita
+(`KisCubicSpline`). Résultat borné à [0,1].
 `description` / `init(string:)` : format Krita `x,y;x,y;` (6 décimales max, point-virgule final).
 Le parseur accepte l'absence de point-virgule final et rejette les valeurs hors [0,1].
 
@@ -166,7 +168,7 @@ Vues : `ContentView`, `TipPanel`, `BehaviorPanel`, `CurveEditor`, `StrokePreview
 ## 7. Tests (TDD, Swift Testing)
 
 - `PressureCurve` : aller-retour texte ; `value(0)` et `value(1)` égales aux points extrêmes ;
-  courbe monotone ; tri et bornage ; rejet des valeurs invalides.
+  les trois préréglages donnent une courbe croissante ; tri et bornage ; rejet des valeurs invalides.
 - `TipMaker` : fond blanc → alpha 0 au seuil ; recadrage exact sur une image de test 20×20 ;
   inversion ; réduction à la taille max ; `suggestedMode` (gris vs couleur) ; erreur `empty`.
 - `PresetXML` : XML relu par `XMLParser` ; présence et valeur de `PressureSize`, `SizeSensor`,
