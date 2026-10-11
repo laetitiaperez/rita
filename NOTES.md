@@ -39,3 +39,6 @@ Pour Laetitia seule. Krita 5.3.4.1.
 - Bundle : noms de fichiers non ASCII écrits en UTF-8 avec le bit 11 ; `unzip -Z1` les affiche déformés dans un terminal en locale C, mais `unzip -t` valide l'archive.
 - `meta.xml` : dates `dd/MM/yyyy` dans le fuseau courant (`BundleWriter.make(… timeZone:)` pour les tests) ; `manifest.xml` et `meta.xml` échappent `& < > "` dans le nom et l'auteur.
 - `BundleWriter.make` : version du générateur lue dans `CFBundleShortVersionString` du bundle principal, « 1.0 » à défaut ; entrées dans l'ordre mimetype, brushes, paintoppresets, preview.png, manifest, meta.
+- `TipMaker` : le recadrage (marge 2 px) est borné aux limites de l'image ; `TipOptions.maxSize` ≤ 0 désactive la réduction ; `TipError.empty` est aussi levée si la rotation/recadrage ne laisse aucun pixel visible.
+- `TipMaker` : en mode Masque la luminance (après contraste et inversion) remplace R, G, B, y compris sous les pixels transparents ; la rampe du seuil est tronquée (luminance 237 → alpha 127) ; l'angle est appliqué en sens horaire, rotation 0 sans CoreGraphics (pixels exacts).
+- `suggestedMode` : une image sans pixel d'alpha > 128 donne `.mask`.
