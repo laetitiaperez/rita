@@ -25,3 +25,11 @@ Pour Laetitia seule. Krita 5.3.4.1.
 - Zip : `mimetype` (application/x-krita-resourcebundle), `META-INF/manifest.xml` (entrées avec
   media-type = dossier de ressource et md5sum), `meta.xml` (auteur, description, dates…), `preview.png`,
   puis les ressources : `paintoppresets/*.kpp`, `brushes/*.png|gbr`.
+
+## Décisions
+- `XValue` = force de l'option (`strength`, 0–1).
+- Le diamètre passe par l'attribut `scale` de `brush_definition` (diamètre ÷ plus grand côté de la pointe), pas par un paramètre séparé.
+- Les nombres du XML (force, espacement, échelle) utilisent `kritaNumber` (6 décimales max, sans zéros finaux), comme les courbes.
+- `PressureKind` est `CodingKeyRepresentable` : `options` est encodé en JSON comme un objet (clés `size`, `opacity`…) et non comme un tableau.
+- Une option absente de `BrushSettings.options` est écrite comme désactivée, linéaire, force 1.
+- Le XML commence directement par `<Preset …>` (pas de déclaration `<?xml?>`), comme le preset de référence.
