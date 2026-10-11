@@ -110,9 +110,9 @@ Le parseur accepte l'absence de point-virgule final et rejette les valeurs hors 
 suite de `<param type="string" name="…"><![CDATA[…]]></param>` triés par nom, comme le preset de
 référence `docs/reference/j)_WaterC_Flat_Decay_Tilt.kpp`.
 Pour chaque option, avec `X` ∈ {Size, Opacity, Flow, Rotation, Scatter, Spacing} :
-- `PressureX` = `true|false` ;
+- `PressureX` = `true|false` (sauf Opacity et Flow, non cochables dans Krita : pas de `PressureOpacity`/`PressureFlow`) ;
 - `XSensor` = `<!DOCTYPE params> <params id="pressure"> <curve>…</curve> </params> ` ;
-- `XUseCurve` = `true`, `XUseSameCurve` = `true`, `XcommonCurve` = la courbe, `XcurveMode` = `0` ;
+- `XUseCurve` = `true` (pour Opacity et Flow : `true` si l'option est activée, `false` sinon, c'est leur « Enable pen settings »), `XUseSameCurve` = `true`, `XcommonCurve` = la courbe, `XcurveMode` = `0` ;
 - `XValue` = l'intensité.
 Ajouter aussi les paramètres fixes : `paintop` = `paintbrush`, `CompositeOp` = `normal`,
 `EraserMode` = `false`, `Scattering/AxisX|AxisY` = `true`, `Spacing/Isotropic` = `false`,

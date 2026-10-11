@@ -53,9 +53,28 @@ private func parse(_ xml: String) throws -> Parsed {
         #expect(p.params["requiredBrushFile"] == "Encre.png")
         #expect(p.params["requiredBrushFilesList"] == "Encre.png")
         for k in PressureKind.allCases {
-            #expect(p.params["Pressure\(k.kritaKey)"] != nil)
+            if k != .opacity && k != .flow { #expect(p.params["Pressure\(k.kritaKey)"] != nil) }
             #expect(p.params["\(k.kritaKey)Sensor"] != nil)
         }
+    }
+
+    @Test func opacityAndFlowUseUseCurveAsEnableFlag() throws {
+        var s = BrushSettings.default
+        for kind in [PressureKind.opacity, .flow] {
+            let key = kind.kritaKey
+            s.options[kind] = .init(enabled: false, strength: 1, curve: .linear)
+            var p = try parse(PresetXML.make(s, tipFileName: "x.png", tipSize: (10, 10)))
+            #expect(p.params["Pressure\(key)"] == nil)
+            #expect(p.params["\(key)UseCurve"] == "false")
+            s.options[kind] = .init(enabled: true, strength: 1, curve: .linear)
+            p = try parse(PresetXML.make(s, tipFileName: "x.png", tipSize: (10, 10)))
+            #expect(p.params["Pressure\(key)"] == nil)
+            #expect(p.params["\(key)UseCurve"] == "true")
+        }
+        s.options[.size] = .init(enabled: false, strength: 1, curve: .linear)
+        let p = try parse(PresetXML.make(s, tipFileName: "x.png", tipSize: (10, 10)))
+        #expect(p.params["PressureSize"] == "false")
+        #expect(p.params["SizeUseCurve"] == "true")
     }
 
     @Test func paramsAreSortedByName() throws {
@@ -124,11 +143,9 @@ private func parse(_ xml: String) throws -> Parsed {
         let generated = try parse(PresetXML.make(.default, tipFileName: "x.png", tipSize: (10, 10)))
         let prefixes = ["Pressure", "Size", "Opacity", "Flow", "Rotation", "Scatter", "Spacing"]
         let exact: Set<String> = ["brush_definition", "paintop", "requiredBrushFile", "requiredBrushFilesList"]
-        // La référence n'a pas PressureOpacity/PressureFlow (options de Krita sans case à cocher) : écart connu, voir NOTES.md.
-        let knownGaps: Set<String> = ["PressureOpacity", "PressureFlow"]
         var checked = 0
         for name in generated.params.keys
-        where (exact.contains(name) || prefixes.contains(where: name.hasPrefix)) && !knownGaps.contains(name) {
+        where exact.contains(name) || prefixes.contains(where: name.hasPrefix) {
             #expect(ref.params[name] != nil, "absent de la référence : \(name)")
             checked += 1
         }

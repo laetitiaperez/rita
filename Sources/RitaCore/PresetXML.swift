@@ -22,9 +22,11 @@ public enum PresetXML {
             let o = s.options[kind] ?? PressureOption(enabled: false, strength: 1, curve: .linear)
             let k = kind.kritaKey
             let curve = o.curve.description
-            params["Pressure\(k)"] = o.enabled ? "true" : "false"
+            // Opacity et Flow n'ont pas de case à cocher dans Krita : « Enable pen settings » = XUseCurve.
+            let checkable = kind != .opacity && kind != .flow
+            if checkable { params["Pressure\(k)"] = o.enabled ? "true" : "false" }
             params["\(k)Sensor"] = "<!DOCTYPE params> <params id=\"pressure\"> <curve>\(curve)</curve> </params> "
-            params["\(k)UseCurve"] = "true"
+            params["\(k)UseCurve"] = (checkable || o.enabled) ? "true" : "false"
             params["\(k)UseSameCurve"] = "true"
             params["\(k)commonCurve"] = curve
             params["\(k)curveMode"] = "0"
